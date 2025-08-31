@@ -1,0 +1,26 @@
+replicaCount: 2
+
+image:
+  repository: weaveworksdemos/front-end
+  tag: "0.3.12"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: sockshop.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+autoscaling
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
