@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sock-shop-fe
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/preranabl/sockshop-chart.git'
+    targetRevision: main
+    path: sock-shop-fe
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sockshop
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
