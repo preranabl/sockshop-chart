@@ -1,53 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "sockshop-frontend.fullname" . }}
+  name: {{ .Chart.Name }}
   labels:
-    {{- include "sockshop-frontend.labels" . | nindent 4 }}
+    app: {{ .Chart.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "sockshop-frontend.selectorLabels" . | nindent 6 }}
+      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        {{- include "sockshop-frontend.selectorLabels" . | nindent 8 }}
+        app: {{ .Chart.Name }}
     spec:
       securityContext:
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            capabilities:
-              drop: ["ALL"]
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "{{ .Values.service.targetPort }}"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
