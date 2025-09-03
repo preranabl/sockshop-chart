@@ -15,3 +15,7 @@ ingress:
   className: nginx
   host: sockshop.local
   path: /
+
+securityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
