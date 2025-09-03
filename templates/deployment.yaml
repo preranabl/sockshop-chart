@@ -24,6 +24,16 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.service.targetPort }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsNonRoot: true
+          runAsUser: {{ .Values.securityContext.runAsUser | default 10001 }}
+          runAsGroup: {{ .Values.securityContext.runAsGroup | default 10001 }}
+          seccompProfile:
+            type: RuntimeDefault
         env:
         - name: NODE_ENV
           value: "production"
